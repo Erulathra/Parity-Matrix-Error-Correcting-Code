@@ -1,18 +1,25 @@
+import random
+
 from bitarray import bitarray
+from colorama import Fore
 
 import corrector as c
 
 
 def main():
-    byte = bitarray('10101101')
-    encoded = c.encode_word(byte)
-    print(f"encoded: {encoded}")
-    print(f"Czy jest encoded jest parzysty: {c.check_word(encoded)}")
-    encoded_with_error = encoded.copy()
-    encoded_with_error[1] = 1
-    print(f"encoded z błędem: {encoded_with_error}")
-    print(f"Czy jest encoded z błędem jest parzysty: {c.check_word(encoded_with_error)}")
-    print(f"dekodowanie: {c.decode_word(encoded)}")
+    error_list = []
+    test = bytearray()
+
+    for i in range(100):
+        test.append(random.randint(0, 254))
+
+    print(f"Startowy: {test}")
+    test_encoded = c.encode_byte_array(test)
+    corrupted = c.corrupt_byte_array(test_encoded, 75)
+    print(f"Popsuty: {c.decode_byte_array(corrupted)}")
+    corrected = c.correct_byte_array(corrupted)
+    print(f"Po korekcji: {c.decode_byte_array(corrected)}")
+    print(f"czy po korekcji wiadomość jest taka sama: {test_encoded == corrected}")
 
 
 if __name__ == "__main__":
