@@ -7,6 +7,7 @@ from bitarray import *
 number_of_parity_bits = 8
 number_of_bits_in_byte = 8
 
+# Macierz
 matrix_H = np.array((
     [1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
     [1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
