@@ -4,13 +4,13 @@ import bitarray as bitarray
 import numpy as np
 from bitarray import *
 
-# constant values, improves readability
+# Stałe wartości, poprawiają czytelność kodu
 number_of_parity_bits = 8
 number_of_bits_in_byte = 8
 
-# Matrix which satisfies two conditions:
-# - there are no repeating rows
-# - each row has unique sum of all of its values
+# Macierz spełniająca dwa warunki:
+# - brak powtarzających się rzędów
+# - każdy rząd ma unikalną sumą wszystkich swoich wartości
 matrix_H = np.array((
     [1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
     [1, 1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
@@ -27,16 +27,16 @@ class CorrectingError(Exception):
     pass
 
 
-# Code markings description:
-# [UTIL] - self-describing, simple function, 
-#          exist mainly to improve code readability
-# [TEST] - code written for testing only, doesn't
-#          add any real functionality
+# Opis oznaczeń w kodzie:
+# [UTIL] - samoopisowa, prosta funkcja,
+#          istnieje głównie po to, by polepszyć czytelność kodu
+# [TEST] - kod napisany wyłącznie w celach testowania programu,
+#          nie dodaje żadnej funkcjonalności
 
 
-# read byte_array and encode each byte
-# by passing it to encode_byte()
-# and append first two bits
+# Zakoduj każdy bajt z byte_array
+# przekazując go do encode_byte()
+# i dodaj na koniec dwa początkowe bity
 def encode_byte_array(byte_array: bytearray):
     result = bytearray()
     for byte in byte_array:
@@ -47,16 +47,15 @@ def encode_byte_array(byte_array: bytearray):
     return result
 
 
-# read every second byte from encoded_byte_array
-# and return
+# Odczytaj co drugi bajt z encoded_byte_array
+# i zwróć rezultat
 def decode_byte_array(encoded_byte_array: bytearray):
     return encoded_byte_array[::2]
 
-
-# read every second byte from encoded_byte_array
-# combine info byte and guard byte together as bitarray
-# correct resulting bitarray via correct_byte()
-# and append first two bits at the end
+# Odczytaj co drugi bajt z encoded_byte_array
+# Połącz razem bit informacji i parzystości jako bitarray
+# Popraw wynik za pomocą correct_byte()
+# i dodaj dwa pierwsze bity do wynikowego bajtu
 def correct_byte_array(encoded_byte_array: bytearray):
     result = bytearray()
     for i in range(0, len(encoded_byte_array), 2):
@@ -69,7 +68,7 @@ def correct_byte_array(encoded_byte_array: bytearray):
 
 
 # [UTIL]
-# convert byte to array of bits
+# Zamień bajt na tablicę bitów
 def byte_to_bit_array(byte: int) -> bitarray:
     result = ''
     for i in range(number_of_bits_in_byte):
@@ -79,7 +78,7 @@ def byte_to_bit_array(byte: int) -> bitarray:
 
 
 # [UTIL]
-# convert two bytes to a single bitarray
+# Połącz dwa bajty w jedną tablicę bitów (bitarray)
 #   [a, b, c], [d, e, f] -> [a, b, c, d, e, f]
 def encoded_byte_to_bit_array(byte_one, byte_two) -> bitarray:
     byte_as_bit_array = bitarray()
@@ -93,13 +92,13 @@ def encoded_byte_to_bit_array(byte_one, byte_two) -> bitarray:
     return byte_as_bit_array
 
 
-# encode byte by adding parity byte:
-# slice hamming_matrix to have number of rows equal to number_of_parity_bits
-# calculate parity byte:
+# Zakoduj bajt, dodając do niego bajt parzystości:
+# Weź wycinek matrix_H o liczbie kolumn równej number_of_parity_bits
+# Oblicz bit parzystości:
 #   (hamming_matrix * T(word_array)) % 2
-# and finally combine information and parity byte:
+# i ostatecznie połącz bit zawierający informację i bit parzystości
 #   [a, b, c], [d, e, f] -> [a, b, c, d, e, f]
-# return the result
+# Zwróć rezultat
 def encode_byte(one_byte: bitarray) -> bitarray:
     hamming_matrix = matrix_H[0:, :number_of_parity_bits]
     word_array = bit_array_to_vector(one_byte)
@@ -118,7 +117,8 @@ def encode_byte(one_byte: bitarray) -> bitarray:
 
 
 # [UTIL]
-# convert bitarray to np.array containing int from bits
+# zamień tablicę bitów (bitarray) na np.array 
+# zawierającą bity przekonwertowane na inty
 def bit_array_to_vector(bits: bitarray) -> np.ndarray:
     result = []
     for i in range(len(bits)):
@@ -126,10 +126,10 @@ def bit_array_to_vector(bits: bitarray) -> np.ndarray:
     return np.array(result)
 
 
-# calculate:
+# Oblicz:
 #   matrix_H * np.array(coded_byte) % 2
-# returns column that should be equal
-# to one of the matrix_H column
+# Zwróć kolumnę, która powinna się równać
+# jednemu z wierszy matrix_H
 def calculate_syndrome(coded_byte) -> np.ndarray:
     syndrome_array = bit_array_to_vector(coded_byte)
     result: np.ndarray = matrix_H.dot(syndrome_array)
@@ -137,13 +137,12 @@ def calculate_syndrome(coded_byte) -> np.ndarray:
 
 
 # [UTIL]
-# returns true if there are no 1's in array
+# zwraca True jeżeli nie ma jedynek w tablicy
 def check_coded_byte(syndrome: np.ndarray) -> bool:
     return np.count_nonzero(syndrome) == 0
 
-
-# calculates coded_byte syndrome and then
-# tries to correct it
+# Oblicz syndrom coded_byte
+# i spróbuj go naprawić
 def correct_byte(coded_byte: bitarray):
     syndrome = calculate_syndrome(coded_byte)
     coded_byte_copy = coded_byte.copy()
@@ -160,16 +159,15 @@ def correct_byte(coded_byte: bitarray):
     except CorrectingError:
         raise CorrectingError()
 
-
-# checks if syndrome array has
-# corresponding column in transformed matrix_H
-# if so, flip the bit on position equal to column number
-# else raise error (there was more than one corrupted bit)
+# Sprawdź czy macierz syndromu
+#  ma odpowiadający jej rząd w matrix_H
+# Jeżeli tak, zamień bit na pozycji odpowiadającej numerowi rzędu
+# w przeciwnym razie zwróć wyjątek (więcej niż jeden bit uległ przekształceniu)
 def try_correct_one_bit(coded_byte: bitarray, syndrome: np.ndarray):
     i = 0
     for column in matrix_H.T:
-        # check if corresponding values of syndrome and column
-        # are equal to each other
+        # Sprawdź czy odpowiednie wartości syndromu i rzędu
+        # są sobie równe
         if np.equal(syndrome, column).all():
             coded_byte[i] ^= 1
             return coded_byte
@@ -178,11 +176,11 @@ def try_correct_one_bit(coded_byte: bitarray, syndrome: np.ndarray):
     raise CorrectingError()
 
 
-# function sums two different rows of matrix_H,
-#  making sure each element has either 0 or 1 as value
-# if the syndrom and sum are identical, bits of coded_byte
-#  on positions of rows in sum are corrected
-# else raise error (there was more than two corrupted bits)
+# Funkcja dodaje do siebie dwa różne rzędy matrix_H
+#  upewniając się, że każdy element ma wartość 0 lub 1
+# Jeżeli syndrom i suma rzędów są ze sobą identyczne,
+#  bity na pozycjach odpowiadających numerom rzędów są poprawione
+# W przeciwnym razie zwróć wyjątek (więcej niż dwa bity uległy przekształceniu)
 def try_correct_two_bits(coded_byte: bitarray, syndrome: np.ndarray):
     i = 0
     j = 0
@@ -204,14 +202,14 @@ def try_correct_two_bits(coded_byte: bitarray, syndrome: np.ndarray):
 
 
 # [UTIL]
-# return first 8 bits of bitarray
+# Zwróć pierwsze 8 bitów z tablicy bitów (bitarray)
 def decode_byte(coded_byte: bitarray) -> bitarray:
     return coded_byte[:8]
 
 
 
 # [TEST]
-# simulate data corruption in transmission
+# Zasymuluj uszkodzenie danych w transmisji
 def corrupt_byte_array(encoded_byte_array: bytearray, corrupted_percentage: float):
     result = encoded_byte_array.copy()
 
@@ -228,10 +226,10 @@ def corrupt_byte_array(encoded_byte_array: bytearray, corrupted_percentage: floa
 
 
 # [TEST], [UTIL]
-# helper function for corrupt_byte_array()
-# simulates byte corruption by switching
-# value of bits in coded_byte
-# in quantity of number_of_switched_bits
+# Funkcja pomocnicza dla corrupt_byte_array()
+# Symuluje uszkodzenie bajtu, zmieniając
+# wartości bitów w coded_byte w ilości
+# podanej w number_of_switched_bytes
 def simulate_noise(coded_byte: bitarray, number_of_switched_bits: int):
     result = coded_byte.copy()
 

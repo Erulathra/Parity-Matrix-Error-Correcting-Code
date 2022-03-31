@@ -1,10 +1,10 @@
 from read_file import read_and_encode, read_and_decode
 
 # INFO
-# Initial input file must have name "plik.txt"
-# Output file after encoding is named "encoded.txt";
-#   The same name is reserved as input file for correcting and decoding
-# Output file after decoding is named "fixed.txt"
+# Plik wejściowy musi mieć nazwę "plik.txt"
+# Plik wyjściowy po zakodowaniu ma nazwę "encoded.txt";
+#   Taka sama nazwa jest zarezerwowana dla pliku wejściowego dla poprawienia i odkodowania
+# Plik wyjściowy po zdekodowaniu ma nazwę "fixed.txt"
 def main():
     try:
         user = str(input("Choose whether you want to encode (e), or decode (d) file"))
