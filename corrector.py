@@ -36,7 +36,7 @@ class CorrectingError(Exception):
 
 # Zakoduj każdy bajt z byte_array
 # przekazując go do encode_byte()
-# i dodaj na koniec dwa początkowe bity
+# i dodaj na koniec dwa początkowe bajty
 def encode_byte_array(byte_array: bytearray):
     result = bytearray()
     for byte in byte_array:
