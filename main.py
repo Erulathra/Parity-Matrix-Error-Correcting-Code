@@ -7,7 +7,7 @@ from read_file import read_and_encode, read_and_decode
 # Plik wyjściowy po zdekodowaniu ma nazwę "fixed.txt"
 def main():
     try:
-        user = str(input("Choose whether you want to encode (e), or decode (d) file"))
+        user = str(input("Wybierz czy chcesz enkodowac (e), czy dekodowac (d) plik"))
         if user == 'e':
             read_and_encode()
 
