@@ -55,7 +55,7 @@ def decode_byte_array(encoded_byte_array: bytearray):
 # Odczytaj co drugi bajt z encoded_byte_array
 # Połącz razem bit informacji i parzystości jako bitarray
 # Popraw wynik za pomocą correct_byte()
-# i dodaj dwa pierwsze bity do wynikowego bajtu
+# i dodaj dwa pierwsze bajty do wynikowego bajtu
 def correct_byte_array(encoded_byte_array: bytearray):
     result = bytearray()
     for i in range(0, len(encoded_byte_array), 2):
@@ -128,7 +128,7 @@ def bit_array_to_vector(bits: bitarray) -> np.ndarray:
 
 # Oblicz:
 #   matrix_H * np.array(coded_byte) % 2
-# Zwróć kolumnę, która powinna się równać
+# Zwróć wiersz, który powinien się równać
 # jednemu z wierszy matrix_H
 def calculate_syndrome(coded_byte) -> np.ndarray:
     syndrome_array = bit_array_to_vector(coded_byte)
@@ -159,14 +159,14 @@ def correct_byte(coded_byte: bitarray):
     except CorrectingError:
         raise CorrectingError()
 
-# Sprawdź czy macierz syndromu
-#  ma odpowiadający jej rząd w matrix_H
-# Jeżeli tak, zamień bit na pozycji odpowiadającej numerowi rzędu
+# Sprawdź czy wektor syndromu
+#  ma odpowiadającą jej kolumnę w T(matrix_H)
+# Jeżeli tak, zamień bit na pozycji odpowiadającej numerowi kolumny
 # w przeciwnym razie zwróć wyjątek (więcej niż jeden bit uległ przekształceniu)
 def try_correct_one_bit(coded_byte: bitarray, syndrome: np.ndarray):
     i = 0
     for column in matrix_H.T:
-        # Sprawdź czy odpowiednie wartości syndromu i rzędu
+        # Sprawdź czy odpowiednie wartości syndromu i kolumny
         # są sobie równe
         if np.equal(syndrome, column).all():
             coded_byte[i] ^= 1
@@ -176,10 +176,10 @@ def try_correct_one_bit(coded_byte: bitarray, syndrome: np.ndarray):
     raise CorrectingError()
 
 
-# Funkcja dodaje do siebie dwa różne rzędy matrix_H
+# Funkcja dodaje do siebie dwie różne kolumny T(matrix_H)
 #  upewniając się, że każdy element ma wartość 0 lub 1
-# Jeżeli syndrom i suma rzędów są ze sobą identyczne,
-#  bity na pozycjach odpowiadających numerom rzędów są poprawione
+# Jeżeli syndrom i suma kolumn są ze sobą identyczne,
+#  bity na pozycjach odpowiadających numerom kolumn są poprawione
 # W przeciwnym razie zwróć wyjątek (więcej niż dwa bity uległy przekształceniu)
 def try_correct_two_bits(coded_byte: bitarray, syndrome: np.ndarray):
     i = 0
